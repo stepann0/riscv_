@@ -1,24 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
-
-func printBin(i uint32) {
-	fmt.Printf("%032b\n", i)
-}
-
-func sprintBin(i uint32) string {
-	return fmt.Sprintf("%032b", i)
-}
-
-func test_x(word uint32, from, len int) {
-	fmt.Printf("from %d len %d\n", from, len)
-	printBin(word)
-	fmt.Println(sprintBin(InstWord(word).x(from, len) << from))
-	fmt.Println()
-}
 
 func TestIImm(t *testing.T) {
 	words := []struct {
