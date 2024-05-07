@@ -35,10 +35,13 @@ func NewCPU() *Cpu {
 }
 
 func (cpu *Cpu) ExecuteInst(inst uint32) {
-	// execute := decode(inst)
-	// execute(cpu, inst)
-	cpu.execRV64IM(inst)
-	cpu.pc += 4
+	for _, i := range INSTRUCTIONS {
+		if (inst & i.mask) == i.match {
+			i.op(cpu, inst)
+			cpu.pc += 4
+		}
+	}
+	panic("Illegal instruction")
 }
 
 func (cpu *Cpu) execRV64IM(inst uint32) {
@@ -344,6 +347,14 @@ func (cpu *Cpu) readReg(reg uint32) uint64 {
 		return 0
 	}
 	return cpu.xregisters[reg]
+}
+
+func (cpu *Cpu) readCSR(csr uint32) uint64 {
+	return cpu.csr[csr]
+}
+
+func (cpu *Cpu) writeCSR(csr uint32, data uint64) {
+	cpu.csr[csr] = data
 }
 
 func (cpu *Cpu) dumpRegN(regs ...uint32) {
