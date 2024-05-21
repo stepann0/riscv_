@@ -16,11 +16,11 @@ const (
 type Cpu struct {
 	pc         uint64
 	xregisters [32]uint64
-	fregisters [32]float64 // F/D extension
+	fregisters [32]float64 // F/D расширения
 	csr        [4096]uint64
-	xlen       uint64 // only 32 or 64
-	flen       uint64 // only 32 or 64
-	memory     Dram
+	xlen       uint64 // разрядность регистров общего назначения
+	flen       uint64 // разрядность float-регистров
+	memory     Dram // доступ к памяти
 }
 
 func NewCPU() *Cpu {
@@ -35,7 +35,7 @@ func NewCPU() *Cpu {
 func (cpu *Cpu) ExecuteInst(inst uint32) {
 	for _, i := range INSTRUCTIONS {
 		if (inst & i.mask) == i.match {
-			i.op(cpu, inst)
+			i.execute(cpu, inst)
 			cpu.pc += 4
 		}
 	}

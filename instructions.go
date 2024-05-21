@@ -22,11 +22,11 @@ func (i InstWord) ujImm() uint32 {
 	return (i.x(21, 10) << 1) + (i.x(20, 1) << 11) + (i.x(12, 8) << 12) + (i.immSign() << 20)
 }
 
-func (i InstWord) x(from, len int) uint32 {
-	return (uint32(i) >> from) & ((uint32(1) << len) - 1)
+func (i InstWord) x(start, len int) uint32 {
+	return (uint32(i) >> start) & ((uint32(1) << len) - 1)
 }
-func (i InstWord) xs(from, len int) uint32 {
-	return uint32(int32(i) << (32 - from - len) >> (32 - len))
+func (i InstWord) xs(start, len int) uint32 {
+	return uint32(int32(i) << (32 - start - len) >> (32 - len))
 }
 
 func (i InstWord) immSign() uint32 { return i.xs(31, 1) }

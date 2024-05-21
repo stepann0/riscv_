@@ -1,9 +1,9 @@
 package main
 
 type Instruction struct {
-	mask  uint32
-	match uint32
-	op    func(*Cpu, uint32)
+	mask    uint32
+	match   uint32
+	execute func(*Cpu, uint32)
 }
 
 var INSTRUCTIONS = [...]Instruction{
@@ -11,7 +11,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x33,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.add(InstWord(inst))
 		},
 	},
@@ -19,7 +19,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x13,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.addi(InstWord(inst))
 		},
 	},
@@ -27,7 +27,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0x707f,
 		match: 0x1b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.addiw(InstWord(inst))
 		},
 	},
@@ -35,7 +35,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x3b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.addw(InstWord(inst))
 		},
 	},
@@ -43,7 +43,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x7033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.and(InstWord(inst))
 		},
 	},
@@ -51,7 +51,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x7013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.andi(InstWord(inst))
 		},
 	},
@@ -59,7 +59,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x7f,
 		match: 0x17,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.auipc(InstWord(inst))
 		},
 	},
@@ -67,7 +67,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x63,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.beq(InstWord(inst))
 		},
 	},
@@ -75,7 +75,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x5063,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.bge(InstWord(inst))
 		},
 	},
@@ -83,7 +83,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x7063,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.bgeu(InstWord(inst))
 		},
 	},
@@ -91,7 +91,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x4063,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.blt(InstWord(inst))
 		},
 	},
@@ -99,7 +99,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x6063,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.bltu(InstWord(inst))
 		},
 	},
@@ -107,7 +107,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x1063,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.bne(InstWord(inst))
 		},
 	},
@@ -115,7 +115,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x3073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrc(InstWord(inst))
 		},
 	},
@@ -123,7 +123,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x7073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrci(InstWord(inst))
 		},
 	},
@@ -131,7 +131,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x2073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrs(InstWord(inst))
 		},
 	},
@@ -139,7 +139,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x6073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrsi(InstWord(inst))
 		},
 	},
@@ -147,7 +147,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x1073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrw(InstWord(inst))
 		},
 	},
@@ -155,7 +155,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0x707f,
 		match: 0x5073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.csrrwi(InstWord(inst))
 		},
 	},
@@ -163,7 +163,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2004033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.div(InstWord(inst))
 		},
 	},
@@ -171,7 +171,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2005033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.divu(InstWord(inst))
 		},
 	},
@@ -179,7 +179,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64M extension
 		mask:  0xfe00707f,
 		match: 0x200503b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.divuw(InstWord(inst))
 		},
 	},
@@ -187,7 +187,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64M extension
 		mask:  0xfe00707f,
 		match: 0x200403b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.divw(InstWord(inst))
 		},
 	},
@@ -195,7 +195,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xffffffff,
 		match: 0x100073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.ebreak(InstWord(inst))
 		},
 	},
@@ -203,7 +203,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xffffffff,
 		match: 0x73,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.ecall(InstWord(inst))
 		},
 	},
@@ -211,7 +211,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0xf,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fence(InstWord(inst))
 		},
 	},
@@ -219,7 +219,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfff0707f,
 		match: 0x8330000f,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fence_tso(InstWord(inst))
 		},
 	},
@@ -227,7 +227,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0x302073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.frcsr(InstWord(inst))
 		},
 	},
@@ -235,7 +235,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0x102073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.frflags(InstWord(inst))
 		},
 	},
@@ -243,7 +243,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0x202073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.frrm(InstWord(inst))
 		},
 	},
@@ -251,7 +251,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfff0707f,
 		match: 0x301073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fscsr(InstWord(inst))
 		},
 	},
@@ -259,7 +259,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfff0707f,
 		match: 0x101073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fsflags(InstWord(inst))
 		},
 	},
@@ -267,7 +267,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfff0707f,
 		match: 0x105073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fsflagsi(InstWord(inst))
 		},
 	},
@@ -275,7 +275,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfff0707f,
 		match: 0x201073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fsrm(InstWord(inst))
 		},
 	},
@@ -283,7 +283,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfff0707f,
 		match: 0x205073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.fsrmi(InstWord(inst))
 		},
 	},
@@ -291,7 +291,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x7f,
 		match: 0x6f,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.jal(InstWord(inst))
 		},
 	},
@@ -299,7 +299,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x67,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.jalr(InstWord(inst))
 		},
 	},
@@ -307,7 +307,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x3,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lb(InstWord(inst))
 		},
 	},
@@ -315,7 +315,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x4003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lbu(InstWord(inst))
 		},
 	},
@@ -323,7 +323,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0x707f,
 		match: 0x3003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.ld(InstWord(inst))
 		},
 	},
@@ -331,7 +331,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x1003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lh(InstWord(inst))
 		},
 	},
@@ -339,7 +339,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x5003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lhu(InstWord(inst))
 		},
 	},
@@ -347,7 +347,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x7f,
 		match: 0x37,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lui(InstWord(inst))
 		},
 	},
@@ -355,7 +355,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x2003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lw(InstWord(inst))
 		},
 	},
@@ -363,7 +363,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0x707f,
 		match: 0x6003,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.lwu(InstWord(inst))
 		},
 	},
@@ -371,7 +371,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2000033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.mul(InstWord(inst))
 		},
 	},
@@ -379,7 +379,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2001033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.mulh(InstWord(inst))
 		},
 	},
@@ -387,7 +387,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2002033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.mulhsu(InstWord(inst))
 		},
 	},
@@ -395,7 +395,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2003033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.mulhu(InstWord(inst))
 		},
 	},
@@ -403,7 +403,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64M extension
 		mask:  0xfe00707f,
 		match: 0x200003b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.mulw(InstWord(inst))
 		},
 	},
@@ -411,7 +411,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x6033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.or(InstWord(inst))
 		},
 	},
@@ -419,7 +419,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x6013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.ori(InstWord(inst))
 		},
 	},
@@ -427,7 +427,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xffffffff,
 		match: 0x100000f,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.pause(InstWord(inst))
 		},
 	},
@@ -435,7 +435,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc0002073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdcycle(InstWord(inst))
 		},
 	},
@@ -443,7 +443,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc8002073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdcycleh(InstWord(inst))
 		},
 	},
@@ -451,7 +451,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc0202073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdinstret(InstWord(inst))
 		},
 	},
@@ -459,7 +459,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc8202073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdinstreth(InstWord(inst))
 		},
 	},
@@ -467,7 +467,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc0102073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdtime(InstWord(inst))
 		},
 	},
@@ -475,7 +475,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVZICSR extension
 		mask:  0xfffff07f,
 		match: 0xc8102073,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rdtimeh(InstWord(inst))
 		},
 	},
@@ -483,7 +483,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2006033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.rem(InstWord(inst))
 		},
 	},
@@ -491,7 +491,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVM extension
 		mask:  0xfe00707f,
 		match: 0x2007033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.remu(InstWord(inst))
 		},
 	},
@@ -499,7 +499,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64M extension
 		mask:  0xfe00707f,
 		match: 0x200703b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.remuw(InstWord(inst))
 		},
 	},
@@ -507,7 +507,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64M extension
 		mask:  0xfe00707f,
 		match: 0x200603b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.remw(InstWord(inst))
 		},
 	},
@@ -515,7 +515,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x23,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sb(InstWord(inst))
 		},
 	},
@@ -523,7 +523,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0x707f,
 		match: 0x3023,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sd(InstWord(inst))
 		},
 	},
@@ -531,7 +531,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x1023,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sh(InstWord(inst))
 		},
 	},
@@ -539,7 +539,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x1033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sll(InstWord(inst))
 		},
 	},
@@ -547,7 +547,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfc00707f,
 		match: 0x1013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.slli(InstWord(inst))
 		},
 	},
@@ -555,7 +555,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x101b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.slliw(InstWord(inst))
 		},
 	},
@@ -563,7 +563,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x103b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sllw(InstWord(inst))
 		},
 	},
@@ -571,7 +571,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x2033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.slt(InstWord(inst))
 		},
 	},
@@ -579,7 +579,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x2013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.slti(InstWord(inst))
 		},
 	},
@@ -587,7 +587,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x3013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sltiu(InstWord(inst))
 		},
 	},
@@ -595,7 +595,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x3033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sltu(InstWord(inst))
 		},
 	},
@@ -603,7 +603,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x40005033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sra(InstWord(inst))
 		},
 	},
@@ -611,7 +611,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfc00707f,
 		match: 0x40005013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.srai(InstWord(inst))
 		},
 	},
@@ -619,7 +619,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x4000501b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sraiw(InstWord(inst))
 		},
 	},
@@ -627,7 +627,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x4000503b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sraw(InstWord(inst))
 		},
 	},
@@ -635,7 +635,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x5033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.srl(InstWord(inst))
 		},
 	},
@@ -643,7 +643,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfc00707f,
 		match: 0x5013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.srli(InstWord(inst))
 		},
 	},
@@ -651,7 +651,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x501b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.srliw(InstWord(inst))
 		},
 	},
@@ -659,7 +659,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x503b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.srlw(InstWord(inst))
 		},
 	},
@@ -667,7 +667,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x40000033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sub(InstWord(inst))
 		},
 	},
@@ -675,7 +675,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RV64I extension
 		mask:  0xfe00707f,
 		match: 0x4000003b,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.subw(InstWord(inst))
 		},
 	},
@@ -683,7 +683,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x2023,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.sw(InstWord(inst))
 		},
 	},
@@ -691,7 +691,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0xfe00707f,
 		match: 0x4033,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.xor(InstWord(inst))
 		},
 	},
@@ -699,7 +699,7 @@ var INSTRUCTIONS = [...]Instruction{
 		// RVI extension
 		mask:  0x707f,
 		match: 0x4013,
-		op: func(cpu *Cpu, inst uint32) {
+		execute: func(cpu *Cpu, inst uint32) {
 			cpu.xori(InstWord(inst))
 		},
 	},
