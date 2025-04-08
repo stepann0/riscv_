@@ -1,20 +1,20 @@
 class Inst:
-    def __init__(self, inst, desc=""):
+    def __init__(self, inst: str, desc=""):
         assert len(inst) == 32
-        self.bin = inst
+        self.binary = inst
         self.desc = desc
 
     def dec(self):
-        return int(self.bin, 2)
+        return int(self.binary, 2)
 
     def hex(self):
         return hex(self.dec())
 
     def bin(self):
-        return self.bin
+        return self.binary
 
     def byte_seq(self):
-        d = [self.bin[i * 8 : i * 8 + 8] for i in range(4)]
+        d = [self.binary[i * 8 : i * 8 + 8] for i in range(4)]
         return ", ".join(map(lambda x: hex(int(x, 2)), d))
 
 
@@ -45,5 +45,10 @@ inst_list = [
     generate_I_inst(0x13, 20, 0x1, 20, 15, "slli x24, x23, 17"),
 ]
 
-for i in inst_list:
-    print(i.hex())
+
+def test():
+    for i in inst_list:
+        print(i.hex())
+
+
+test()

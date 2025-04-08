@@ -217,78 +217,6 @@ var INSTRUCTIONS = [...]Instruction{
 	},
 	Instruction{
 		// RVI extension
-		mask:  0xfff0707f,
-		match: 0x8330000f,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fence_tso(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0x302073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.frcsr(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0x102073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.frflags(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0x202073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.frrm(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfff0707f,
-		match: 0x301073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fscsr(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfff0707f,
-		match: 0x101073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fsflags(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfff0707f,
-		match: 0x105073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fsflagsi(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfff0707f,
-		match: 0x201073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fsrm(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfff0707f,
-		match: 0x205073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.fsrmi(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVI extension
 		mask:  0x7f,
 		match: 0x6f,
 		execute: func(cpu *Cpu, inst uint32) {
@@ -429,54 +357,6 @@ var INSTRUCTIONS = [...]Instruction{
 		match: 0x100000f,
 		execute: func(cpu *Cpu, inst uint32) {
 			cpu.pause(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc0002073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdcycle(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc8002073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdcycleh(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc0202073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdinstret(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc8202073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdinstreth(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc0102073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdtime(InstWord(inst))
-		},
-	},
-	Instruction{
-		// RVZICSR extension
-		mask:  0xfffff07f,
-		match: 0xc8102073,
-		execute: func(cpu *Cpu, inst uint32) {
-			cpu.rdtimeh(InstWord(inst))
 		},
 	},
 	Instruction{
@@ -701,6 +581,14 @@ var INSTRUCTIONS = [...]Instruction{
 		match: 0x4013,
 		execute: func(cpu *Cpu, inst uint32) {
 			cpu.xori(InstWord(inst))
+		},
+	},
+	Instruction{
+		// RVI extension
+		mask:  0xffffffff,
+		match: 0x30200073,
+		execute: func(cpu *Cpu, inst uint32) {
+
 		},
 	},
 }

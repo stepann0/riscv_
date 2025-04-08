@@ -1,35 +1,37 @@
 package main
 
-import "math/bits"
+import (
+	"math/bits"
+)
 
 type InstWord uint32
 
-func (i InstWord) rd() uint32    { return i.x(7, 5) }
-func (i InstWord) rs1() uint32   { return i.x(15, 5) }
-func (i InstWord) rs2() uint32   { return i.x(20, 5) }
-func (i InstWord) rs3() uint32   { return i.x(27, 5) }
-func (i InstWord) rm() uint32    { return i.x(12, 3) }
-func (i InstWord) csr() uint32   { return i.x(20, 12) }
-func (i InstWord) iImm() uint32  { return i.xs(20, 12) }
-func (i InstWord) shamt() uint32 { return i.x(20, 6) }
-func (i InstWord) sImm() uint32  { return i.x(7, 5) + (i.xs(25, 7) << 5) }
-func (i InstWord) uImm() uint32  { return i.xs(12, 20) << 12 }
-func (i InstWord) sbImm() uint32 {
+func (i InstWord) rd() uint64      { return i.x(7, 5) }
+func (i InstWord) rs1() uint64     { return i.x(15, 5) }
+func (i InstWord) rs2() uint64     { return i.x(20, 5) }
+func (i InstWord) rs3() uint64     { return i.x(27, 5) }
+func (i InstWord) rm() uint64      { return i.x(12, 3) }
+func (i InstWord) csr() uint64     { return i.x(20, 12) }
+func (i InstWord) iImm() uint64    { return i.xs(20, 12) }
+func (i InstWord) shamt() uint64   { return i.x(20, 6) }
+func (i InstWord) sImm() uint64    { return i.x(7, 5) + (i.xs(25, 7) << 5) }
+func (i InstWord) uImm() uint64    { return i.xs(12, 20) << 12 }
+func (i InstWord) immSign() uint64 { return i.xs(31, 1) }
+func (i InstWord) sbImm() uint64 {
 	return (i.x(8, 4) << 1) + (i.x(25, 6) << 5) + (i.x(7, 1) << 11) + (i.immSign() << 12)
 }
 
-func (i InstWord) ujImm() uint32 {
+func (i InstWord) ujImm() uint64 {
 	return (i.x(21, 10) << 1) + (i.x(20, 1) << 11) + (i.x(12, 8) << 12) + (i.immSign() << 20)
 }
 
-func (i InstWord) x(start, len int) uint32 {
-	return (uint32(i) >> start) & ((uint32(1) << len) - 1)
+func (i InstWord) x(start, len int) uint64 {
+	return (uint64(i) >> start) & ((uint64(1) << len) - 1)
 }
-func (i InstWord) xs(start, len int) uint32 {
-	return uint32(int32(i) << (32 - start - len) >> (32 - len))
+func (i InstWord) xs(start, len int) uint64 {
+	return uint64(int64(i) << (64 - start - len) >> (64 - len))
 }
 
-func (i InstWord) immSign() uint32 { return i.xs(31, 1) }
 func signExtend(val int64, bit uint) int64 {
 	return val << (64 - bit) >> (64 - bit)
 }
@@ -41,12 +43,12 @@ func (cpu *Cpu) add(inst InstWord) {
 
 func (cpu *Cpu) addi(inst InstWord) {
 	rs1 := cpu.readReg(inst.rs1())
-	cpu.writeReg(inst.rd(), rs1+uint64(inst.iImm()))
+	cpu.writeReg(inst.rd(), rs1+inst.iImm())
 }
 
 func (cpu *Cpu) addiw(inst InstWord) {
 	rs1 := cpu.readReg(inst.rs1())
-	sum := int32(rs1 + uint64(inst.iImm()))
+	sum := int32(rs1 + inst.iImm())
 	cpu.writeReg(inst.rd(), uint64(sum))
 }
 
@@ -61,51 +63,57 @@ func (cpu *Cpu) and(inst InstWord) {
 }
 
 func (cpu *Cpu) andi(inst InstWord) {
-	rs1, imm := cpu.readReg(inst.rs1()), uint64(inst.iImm())
+	rs1, imm := cpu.readReg(inst.rs1()), inst.iImm()
 	cpu.writeReg(inst.rd(), rs1&imm)
 }
 
 func (cpu *Cpu) auipc(inst InstWord) {
-	cpu.writeReg(inst.rd(), cpu.pc+uint64(inst&0xfffff000))
+	cpu.writeReg(inst.rd(), cpu.pc+inst.uImm())
 }
 
 func (cpu *Cpu) beq(inst InstWord) {
 	if cpu.readReg(inst.rs1()) == cpu.readReg(inst.rs2()) {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
 func (cpu *Cpu) bge(inst InstWord) {
 	rs1, rs2 := cpu.readReg(inst.rs1()), cpu.readReg(inst.rs2())
 	if int64(rs1) >= int64(rs2) {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
 func (cpu *Cpu) bgeu(inst InstWord) {
 	rs1, rs2 := cpu.readReg(inst.rs1()), cpu.readReg(inst.rs2())
 	if rs1 >= rs2 {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
 func (cpu *Cpu) blt(inst InstWord) {
 	rs1, rs2 := cpu.readReg(inst.rs1()), cpu.readReg(inst.rs2())
 	if int64(rs1) < int64(rs2) {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
 func (cpu *Cpu) bltu(inst InstWord) {
 	rs1, rs2 := cpu.readReg(inst.rs1()), cpu.readReg(inst.rs2())
 	if rs1 < rs2 {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
 func (cpu *Cpu) bne(inst InstWord) {
 	if cpu.readReg(inst.rs1()) != cpu.readReg(inst.rs2()) {
-		cpu.pc += uint64(inst.sbImm())
+		cpu.pc += inst.sbImm()
+		cpu.pc -= 4
 	}
 }
 
@@ -121,7 +129,7 @@ func (cpu *Cpu) csrrc(inst InstWord) {
 func (cpu *Cpu) csrrci(inst InstWord) {
 	csr_data := cpu.readCSR(inst.csr())
 	cpu.writeReg(inst.rd(), csr_data)
-	if rs := uint64(inst.rs1()); rs != 0 {
+	if rs := inst.rs1(); rs != 0 {
 		cpu.writeCSR(inst.csr(), csr_data&(^rs))
 	}
 }
@@ -138,7 +146,7 @@ func (cpu *Cpu) csrrs(inst InstWord) {
 func (cpu *Cpu) csrrsi(inst InstWord) {
 	csr_data := cpu.readCSR(inst.csr())
 	cpu.writeReg(inst.rd(), csr_data)
-	if rs := uint64(inst.rs1()); rs != 0 {
+	if rs := inst.rs1(); rs != 0 {
 		cpu.writeCSR(inst.csr(), csr_data|rs)
 	}
 }
@@ -159,7 +167,7 @@ func (cpu *Cpu) csrrwi(inst InstWord) {
 	// } ???
 	csr_data := cpu.readCSR(inst.csr())
 	cpu.writeReg(inst.rd(), csr_data)
-	cpu.writeCSR(inst.csr(), uint64(inst.rs1()))
+	cpu.writeCSR(inst.csr(), inst.rs1())
 }
 
 func (cpu *Cpu) div(inst InstWord) {
@@ -187,52 +195,27 @@ func (cpu *Cpu) ebreak(inst InstWord) {
 }
 
 func (cpu *Cpu) ecall(inst InstWord) {
-
+	cpu.dumpRegN(10, 11, 12, 13, 14, 15, 16, 17)
+	switch cpu.privilege {
+	case USER_MODE:
+		panic(ECallFromUser)
+	case SUPERVISOR_MODE:
+		panic(ECallFromSupervisor)
+	case RESERVED_MODE:
+		panic(ECallFromReserved)
+	case MACHINE_MODE:
+		panic(ECallFromMachine)
+	}
 }
 
 func (cpu *Cpu) fence(inst InstWord) {
 
 }
 
-func (cpu *Cpu) fence_tso(inst InstWord) {
-
-}
-
-func (cpu *Cpu) frcsr(inst InstWord) {
-
-}
-
-func (cpu *Cpu) frflags(inst InstWord) {
-
-}
-
-func (cpu *Cpu) frrm(inst InstWord) {
-
-}
-
-func (cpu *Cpu) fscsr(inst InstWord) {
-
-}
-
-func (cpu *Cpu) fsflags(inst InstWord) {
-
-}
-
-func (cpu *Cpu) fsflagsi(inst InstWord) {
-
-}
-
-func (cpu *Cpu) fsrm(inst InstWord) {
-
-}
-
-func (cpu *Cpu) fsrmi(inst InstWord) {
-
-}
-
 func (cpu *Cpu) jal(inst InstWord) {
 	cpu.writeReg(inst.rd(), cpu.pc+4)
-	cpu.pc += uint64(inst.ujImm())
+	// cpu.pc = uint64(int64(cpu.pc) + int64(inst.uImm())) //???
+	cpu.pc = uint64(cpu.pc+inst.ujImm()) - 4
 }
 
 func (cpu *Cpu) jalr(inst InstWord) {
@@ -244,43 +227,43 @@ func (cpu *Cpu) jalr(inst InstWord) {
 }
 
 func (cpu *Cpu) lb(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.writeReg(inst.rd(), cpu.memory.Read8(addr))
 }
 
 func (cpu *Cpu) lbu(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.writeReg(inst.rd(), cpu.memory.Read8(addr))
 }
 
 func (cpu *Cpu) ld(inst InstWord) { // ???
-	// addr := uint64(inst.iImm() + inst.rs1())
+	// addr := inst.iImm() + inst.rs1()
 	// cpu.writeReg(inst.rd(), cpu.memory.Read8(addr))
 }
 
 func (cpu *Cpu) lh(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	data := cpu.memory.Read16(addr)
 	cpu.writeReg(inst.rd(), uint64(int64(int16(data))))
 }
 
 func (cpu *Cpu) lhu(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.writeReg(inst.rd(), cpu.memory.Read16(addr))
 }
 
 func (cpu *Cpu) lui(inst InstWord) {
-	cpu.writeReg(inst.rd(), uint64(inst&0xfffff000))
+	cpu.writeReg(inst.rd(), inst.uImm())
 }
 
 func (cpu *Cpu) lw(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	data := cpu.memory.Read32(addr)
 	cpu.writeReg(inst.rd(), uint64(int64(int32(data))))
 }
 
 func (cpu *Cpu) lwu(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.writeReg(inst.rd(), cpu.memory.Read32(addr))
 }
 
@@ -317,35 +300,11 @@ func (cpu *Cpu) or(inst InstWord) {
 }
 
 func (cpu *Cpu) ori(inst InstWord) {
-	rs1, imm := cpu.readReg(inst.rs1()), uint64(inst.iImm())
+	rs1, imm := cpu.readReg(inst.rs1()), inst.iImm()
 	cpu.writeReg(inst.rd(), rs1|imm)
 }
 
 func (cpu *Cpu) pause(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdcycle(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdcycleh(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdinstret(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdinstreth(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdtime(inst InstWord) {
-
-}
-
-func (cpu *Cpu) rdtimeh(inst InstWord) {
 
 }
 
@@ -370,22 +329,22 @@ func (cpu *Cpu) remw(inst InstWord) {
 }
 
 func (cpu *Cpu) sb(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.memory.Write8(addr, cpu.readReg(inst.rs2()))
 }
 
 func (cpu *Cpu) sh(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.memory.Write16(addr, cpu.readReg(inst.rs2()))
 }
 
 func (cpu *Cpu) sw(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.memory.Write32(addr, cpu.readReg(inst.rs2()))
 }
 
 func (cpu *Cpu) sd(inst InstWord) {
-	addr := uint64(inst.iImm() + inst.rs1())
+	addr := inst.iImm() + inst.rs1()
 	cpu.memory.Write64(addr, cpu.readReg(inst.rs2()))
 }
 
@@ -441,7 +400,7 @@ func (cpu *Cpu) sltu(inst InstWord) {
 }
 
 func (cpu *Cpu) slti(inst InstWord) {
-	rs1, imm := cpu.readReg(inst.rs1()), uint64(inst.iImm())
+	rs1, imm := cpu.readReg(inst.rs1()), inst.iImm()
 	res := uint64(0)
 	if int64(rs1) < int64(imm) {
 		res = 1
@@ -450,7 +409,7 @@ func (cpu *Cpu) slti(inst InstWord) {
 }
 
 func (cpu *Cpu) sltiu(inst InstWord) {
-	rs1, imm := cpu.readReg(inst.rs1()), uint64(inst.iImm())
+	rs1, imm := cpu.readReg(inst.rs1()), inst.iImm()
 	res := uint64(0)
 	if rs1 < imm {
 		res = 1
@@ -508,6 +467,6 @@ func (cpu *Cpu) xor(inst InstWord) {
 }
 
 func (cpu *Cpu) xori(inst InstWord) {
-	rs1, imm := cpu.readReg(inst.rs1()), uint64(inst.iImm())
+	rs1, imm := cpu.readReg(inst.rs1()), inst.iImm()
 	cpu.writeReg(inst.rd(), rs1^imm)
 }

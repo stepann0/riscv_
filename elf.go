@@ -31,7 +31,6 @@ func LoadSegments(f *elf.File, memory Dram) {
 		if prog.Type == elf.PT_LOAD {
 			data := make([]uint8, prog.Memsz)
 			n, _ := prog.Open().Read(data)
-			// fmt.Printf("addr: %#d, offset:%#x\n", prog.Paddr, prog.Off)
 			if n != int(prog.Filesz) {
 				panic("Failed to read 'memsz' bytes")
 			}
