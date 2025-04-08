@@ -1,3 +1,3 @@
-module emulator-riscv
+module riscv_
 
-go 1.21.3
+go 1.24.1
