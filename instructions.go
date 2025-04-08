@@ -25,11 +25,29 @@ func (i InstWord) ujImm() uint64 {
 	return (i.x(21, 10) << 1) + (i.x(20, 1) << 11) + (i.x(12, 8) << 12) + (i.immSign() << 20)
 }
 
+// "eXtract" InstWord' bits from start+1 to start+len
+// to get bits from 4 to 7 from 01011101 you would call x(3, 4)
 func (i InstWord) x(start, len int) uint64 {
 	return (uint64(i) >> start) & ((uint64(1) << len) - 1)
 }
+
+// "eXtract Signed" first len bits of InstWord with sign being extended
+// start+len should be = 32
 func (i InstWord) xs(start, len int) uint64 {
 	return uint64(int64(i) << (64 - start - len) >> (64 - len))
+}
+
+func mulh(s1, s2 int64) uint64 {
+	p, _ := bits.Mul64(uint64(s1), uint64(s2))
+	t1 := (s1 >> 63) & s2
+	t2 := (s2 >> 63) & s1
+	return uint64(int64(p) - t1 - t2)
+}
+
+func mulhsu(s int64, u uint64) uint64 {
+	p, _ := bits.Mul64(uint64(s), u)
+	t1 := (s >> 63) & int64(u)
+	return uint64(int64(p) - t1)
 }
 
 func signExtend(val int64, bit uint) int64 {
